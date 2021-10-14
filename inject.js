@@ -273,15 +273,23 @@ function defineVideoController() {
   tc.videoController.prototype.initializeControls = function () {
     log("initializeControls Begin", 5);
     const document = this.video.ownerDocument;
-    const speed = this.video.playbackRate.toFixed(2);
-    const rect = this.video.getBoundingClientRect();
-    // getBoundingClientRect is relative to the viewport; style coordinates
-    // are relative to offsetParent, so we adjust for that here. offsetParent
-    // can be null if the video has `display: none` or is not yet in the DOM.
-    const offsetRect = this.video.offsetParent?.getBoundingClientRect();
-    const top = Math.max(rect.top - (offsetRect?.top || 0), 0) + "px";
-    const left = Math.max(rect.left - (offsetRect?.left || 0), 0) + "px";
 
+    let offsetRect, top, left
+    if ('video' === document.contentType.slice(0,5)) { // 'video/mp4', 'video/webm', etc.
+      // local file
+      top = "0px"
+      left = "0px"
+    } else {
+      // getBoundingClientRect is relative to the viewport; style coordinates
+      // are relative to offsetParent, so we adjust for that here. offsetParent
+      // can be null if the video has `display: none` or is not yet in the DOM.
+    const rect = this.video.getBoundingClientRect();
+    offsetRect = this.video.offsetParent?.getBoundingClientRect();
+      top = Math.max(rect.top - (offsetRect?.top || 0), 0) + "px";
+      left = Math.max(rect.left - (offsetRect?.left || 0), 0) + "px";
+    }
+  
+    const speed = this.video.playbackRate.toFixed(2);
     log("Speed variable set to: " + speed, 5);
 
     var wrapper = document.createElement("div");
